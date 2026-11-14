@@ -27,6 +27,52 @@
       { t: 'Help is always at hand', x: 'The ? on each row explains what it does. Report bug, Check for updates and the language are below the menu. This guide comes back with the ? button at the top.' },
     ],
     novidades: {
+      '1.53.13': [
+        "Main fix: the [Off | Gems | Gold] sale choices are now actually saved (before, a click only changed the color).",
+        "Rarities and sale choices no longer reset to Off after reloading the page.",
+        "Stones set manually are no longer forced back to Off by the old migration."
+      ],
+      '1.53.12': [
+        "The [Off | Gems | Gold] and rarity selectors are now responsive: rows wrap and adapt to the panel width, no longer overflowing off-screen.",
+        "Long names (such as Sell Mega Shiny Fragments) now wrap instead of overlapping the neighboring item.",
+        "On narrow panels the sale list switches to a single column; on wide panels it stays in two."
+      ],
+      '1.53.11': [
+        "Added [Off | Gems | Gold] selector for Sell Pokémon under Complete Items.",
+        "Fix for 3-state and rarity buttons: removed improper lock when pilot is off and added immediate visual feedback on click.",
+        "Fix for Stones default: now strictly defaults to Off like all other items."
+      ],
+      '1.53.10': [
+        "Separation of Complete Items and Fragments with a 3-state selector: no items or fragments are resold on their own by default.",
+        "Bicycles and Houses with rarity limits: choose 'Sell up to' (Common, Uncommon, Rare, Mythic, or Legendary) to keep higher rarities safe.",
+        "Fragments 100% separated: removed 'Other Frags'. Every fragment (AoE, Z-Move, Bike, Key, Mega Stone, Mega Shiny, Shiny Stone, and Shiny Egg) has its own [Off | Gems | Gold] selector.",
+        "Z-Move Fragments positioned directly below AoE Fragments.",
+        "Maintains a reserve of 2 evolution stones per type when selling Stones."
+      ],
+      '1.53.9': [
+        "Resale currency selection: you can now individually choose whether to resell Boss Token, Mystic Ticket, and Safari Ticket for Gold or for Gems.",
+        "The radar still buys these items cheaply strictly for gold; if resale is configured for Gems, they will be listed for Gems on the market.",
+        "Resale cards and manual actions display the correct currency and apply the 15% flat Gems market fee.",
+      ],
+      '1.53.8': [
+        "Settings no longer shows up twice in Automatic mode: only the menu tab remains, aligned with Alerts, Offers and the rest.",
+        "Boss Token, Mystic Ticket and Safari Ticket are never resold on their own: the radar only buys them for gold when they are cheap. In Settings > What to watch there is a switch for each one (\"Sell ... for gold\"); with it off, the item never goes to resale.",
+        "Listings of these items that were already open are left alone.",
+      ],
+      '1.53.7': [
+        "Market Radar: turning it on or off with the Settings switch (or the top strip) is now really saved. On page reload the radar keeps the state you configured instead of coming back off.",
+        "F5 neither turns the radar on nor off by itself: it just follows what is saved.",
+      ],
+      '1.53.6': [
+        "Automatic resale: while it is on, 2 evolution stones of each type stay in stock. If a Pokémon that evolves with a stone shows up, you already have it without having to buy one.",
+        "The reserve applies to the next automatic listings; stone listings that were already open are left alone. Hand-bought items and stones reserved for the team remain protected.",
+      ],
+      '1.53.5': [
+        "Fixed the background script on IdleDeck: two Chrome APIs were missing (alarms and session storage) and it crashed before answering the radar. That is what left Resale stuck on \"reading the market…\" and Offers on \"Waiting for the radar's first check.\".",
+        "The radar no longer turns itself on when the page reloads: turning it off is a saved choice and F5 does not undo it.",
+        "If the background script does not answer, the screen moves on after a few seconds instead of hanging forever.",
+        "Offers now say when the check finished and no watched item had a gold listing.",
+      ],
       '1.53.4': [
         "Market in Auto: the Settings and Targets tabs now also appear in Auto mode, so you can adjust limits, watch, alerts and targets without switching to Manual.",
         "Buy targets now also apply in Auto, and whatever you adjust in the Market stays saved after reloading the page.",

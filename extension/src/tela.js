@@ -112,6 +112,38 @@
     .r-ajustes .lims { width: 100%; }
     .r-mini { display: inline-flex; align-items: center; gap: 9px; cursor: pointer; font: 700 12.5px/1.2 var(--tahoma); color: var(--texto); }
     .r-mini .cfg-toggle { --cfg-larg: 54px; --cfg-alt: 26px; --cfg-mao: 18px; }
+    .r-mini-venda { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .r-seg-moeda { display: inline-flex; border-radius: 5px; overflow: hidden; box-shadow: inset 0 0 0 1px var(--linha); background: var(--vazio, #1b1216); }
+    .r-bt-moeda { border: 0; background: transparent; color: var(--dim, #a89498); padding: 4px 9px; font: 700 11px/1 var(--tahoma); cursor: pointer; transition: all .12s; }
+    .r-bt-moeda:hover { color: var(--texto, #fff); background: rgba(255,255,255,.05); }
+    .r-bt-moeda.on[data-moeda="gold"] { color: #3a2a00; text-shadow: 0 1px 0 rgba(255,255,255,.4); background: linear-gradient(180deg, #ffe9a8 0 3px, #d09a17 3px 100%); }
+    .r-bt-moeda.on[data-moeda="orb"] { color: #38001a; text-shadow: 0 1px 0 rgba(255,255,255,.4); background: linear-gradient(180deg, #ffd1e8 0 3px, #e83e8c 3px 100%); }
+    .r-bloco-venda { width: 100%; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--linha); }
+    .r-subtitulo-venda { font: 700 11.5px/1.2 var(--tahoma); color: var(--sobre-mad, #ffd700); text-transform: uppercase; letter-spacing: .5px; margin: 4px 0 6px; }
+    .r-linhas-venda { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr)); gap: 8px 14px; width: 100%; min-width: 0; }
+    .r-linha-venda { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px 8px; min-width: 0; background: rgba(0,0,0,.15); padding: 5px 8px; border-radius: 5px; }
+    .r-linha-venda.r-linha-venda-raridade { flex-direction: column; align-items: stretch; gap: 6px; }
+    .r-linha-venda-topo { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px 8px; width: 100%; min-width: 0; }
+    .r-sublinha-rar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 5px 6px; padding-top: 5px; border-top: 1px dashed rgba(255,255,255,.08); width: 100%; min-width: 0; }
+    .r-rot-rar { font: 600 11px/1 var(--tahoma); color: var(--dim, #a89498); white-space: nowrap; }
+    .r-seg-rar { display: inline-flex; flex-wrap: wrap; max-width: 100%; border-radius: 4px; overflow: hidden; box-shadow: inset 0 0 0 1px var(--linha); background: var(--vazio, #1b1216); flex-shrink: 0; }
+    .r-bt-rar { border: 0; background: transparent; color: var(--dim, #a89498); padding: 3px 6px; font: 700 10px/1 var(--tahoma); cursor: pointer; transition: all .12s; }
+    .r-bt-rar:hover { color: var(--texto, #fff); background: rgba(255,255,255,.05); }
+    .r-bt-rar.on { color: #fff; background: #5c636a; text-shadow: 0 1px 0 rgba(0,0,0,.5); }
+    .r-bt-rar.on[data-rar="comum"] { background: #6c757d; }
+    .r-bt-rar.on[data-rar="incomum"] { background: #28a745; }
+    .r-bt-rar.on[data-rar="rara"] { background: #007bff; }
+    .r-bt-rar.on[data-rar="mitica"] { background: #6f42c1; }
+    .r-bt-rar.on[data-rar="lendaria"] { background: linear-gradient(180deg, #ffe9a8 0 3px, #d09a17 3px 100%); color: #3a2a00; text-shadow: 0 1px 0 rgba(255,255,255,.4); }
+    .r-bt-rar:disabled { cursor: not-allowed; opacity: .5; }
+    .r-nome-venda { font: 700 12px/1.2 var(--tahoma); color: var(--texto); white-space: normal; overflow-wrap: anywhere; min-width: 0; flex: 1 1 120px; }
+    .r-seg-3 { display: inline-flex; border-radius: 5px; overflow: hidden; box-shadow: inset 0 0 0 1px var(--linha); background: var(--vazio, #1b1216); flex: 0 0 auto; margin-left: auto; max-width: 100%; }
+    .r-bt-3 { border: 0; background: transparent; color: var(--dim, #a89498); padding: 4px 9px; font: 700 11px/1 var(--tahoma); cursor: pointer; transition: all .12s; }
+    .r-bt-3:hover { color: var(--texto, #fff); background: rgba(255,255,255,.05); }
+    .r-bt-3.on[data-val="off"] { color: #fff; background: #495057; }
+    .r-bt-3.on[data-val="orb"] { color: #38001a; text-shadow: 0 1px 0 rgba(255,255,255,.4); background: linear-gradient(180deg, #ffd1e8 0 3px, #e83e8c 3px 100%); }
+    .r-bt-3.on[data-val="gold"] { color: #3a2a00; text-shadow: 0 1px 0 rgba(255,255,255,.4); background: linear-gradient(180deg, #ffe9a8 0 3px, #d09a17 3px 100%); }
+    .r-bt-3:disabled { cursor: not-allowed; opacity: .5; }
     .painel.encaixado .cab .botao { display: none; }
     .painel[data-modo="desligado"] .faixa, .painel[data-modo="desligado"] .ajustes { filter: grayscale(1) brightness(.78); }
     .cfg-toggle:disabled, .cfg-escala-bt:disabled { cursor: not-allowed; }
@@ -452,10 +484,9 @@
     p.areaAvisos = el('div', 'rm-cartoes');
     p.avisosVazio = el('div');
     p.avisosTexto = el('p', 'vazio');
-    p.abrirOpcoes = el('button', 'botao', 'Ajustes');
-    p.abrirOpcoes.type = 'button';
-    p.abrirOpcoes.addEventListener('click', () => mostrarAba('ajustes'));
-    p.avisosVazio.append(p.avisosTexto, p.abrirOpcoes);
+    // 1.53.8: a aba Ajustes do menu já aparece nos dois modos; o botão extra daqui duplicava ela
+    // no Automático.
+    p.avisosVazio.append(p.avisosTexto);
     p.conteudos.avisos.append(p.areaAvisos, p.avisosVazio);
     // Mercado, Compras e Vendas: repintados por inteiro quando chega dado novo.
     p.mercado = el('div');
@@ -649,6 +680,22 @@
     (document.body || document.documentElement).appendChild(painelHost);
   });
 
+  // 1.53.5: ligar/desligar o radar é uma escolha explícita. Fica salva junto das escolhas do
+  // Automático e o F5 (ou a conta antiga sendo consertada) não liga mais o radar à força.
+  // 1.53.7: uma gravação de cada vez, para dois interruptores seguidos não apagarem um ao outro.
+  let filaEscolhas = Promise.resolve();
+  function gravarEscolhaAuto(chave, valor) {
+    const vez = filaEscolhas.then(async () => {
+      const r = await chrome.storage.local.get('radar:auto-escolhas');
+      await chrome.storage.local.set({ 'radar:auto-escolhas': { ...(r['radar:auto-escolhas'] || {}), [chave]: valor } });
+    });
+    filaEscolhas = vez.catch(() => {});
+    return vez;
+  }
+  function gravarEscolhaRadar(ligado) {
+    return gravarEscolhaAuto('radarLigado', ligado).catch(erro);
+  }
+
   async function alternarRadar() {
     const salvo = await chrome.storage.local.get(Config.CHAVE);
     const atual = Config.validar(salvo[Config.CHAVE]);
@@ -656,9 +703,12 @@
       // Retomar: desliga e liga, o que zera o recuo.
       await chrome.storage.local.set({ [Config.CHAVE]: { ...atual, radarLigado: false } });
       await chrome.storage.local.set({ [Config.CHAVE]: { ...atual, radarLigado: true } });
+      gravarEscolhaRadar(true);
       return;
     }
-    await chrome.storage.local.set({ [Config.CHAVE]: { ...atual, radarLigado: !atual.radarLigado } });
+    const ligar = !atual.radarLigado;
+    await chrome.storage.local.set({ [Config.CHAVE]: { ...atual, radarLigado: ligar } });
+    gravarEscolhaRadar(ligar);
   }
 
   async function alternarAutomatica() {
@@ -825,7 +875,7 @@
   }
 
   // ---- Ajustes -----------------------------------------------------------------------------------
-  const NOMES_CATEGORIA = { stone: 'Pedras', fragment: 'Fragmentos', boss: 'Fichas de boss', ticket: 'Tickets', tm: 'TMs', mega: 'Mega pedras', skin: 'Skins', ovo: 'Ovos' };
+  const NOMES_CATEGORIA = { stone: 'Pedras', fragment: 'Fragmentos', boss: 'Fichas de boss', ticket: 'Tickets', tm: 'TMs', mega: 'Mega pedras', casa: 'Casas', bicicleta: 'Bicicletas', skin: 'Skins', ovo: 'Ovos' };
   let catalogoCats = null;
 
   // 1.34: uma gravação de cada vez. Duas mudanças seguidas (dois campos de limite, ou o "input" e o
@@ -849,7 +899,7 @@
   // ---- 1.13: os ajustes do Radar como linhas da janela Configurações do jogo -------------------
   const escH = (x) => String(x ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const trava = () => s.modoPiloto === 'desligado';
-  const ESCOLHAS_AUTO = ['compraAutomatica', 'compraAutomaticaPokemon', 'revendaAutomatica', 'vigiaContinua', 'ajusteAutomatico', 'pokemon', 'revendaSoDoRadar', 'notificacoes', 'som', 'abrirPainelNoAviso'];
+  const ESCOLHAS_AUTO = ['compraAutomatica', 'compraAutomaticaPokemon', 'revendaAutomatica', 'vigiaContinua', 'ajusteAutomatico', 'pokemon', 'revendaSoDoRadar', 'notificacoes', 'som', 'abrirPainelNoAviso', 'raridadeBicicleta', 'raridadeCasa', ...(Config.GRUPOS_VENDA || []).map((g) => g.chave)];
   const tg = (k, on, inverso = false) => `<button type="button" class="cfg-toggle${on ? ' on' : ''}" role="switch" aria-checked="${!!on}" data-cfg="${k}"${inverso ? ' data-inverso="1"' : ''}${trava() ? ' disabled' : ''}></button>`;
   const linhaR = ({ nome, dica = '', k = null, on = false, inverso = false, status = '', ajustes = '' }) => `<div class="cfg-linha r-linha">
       <span class="cfg-rot"><span class="cfg-cola"><span class="cfg-nome">${nome}</span>${dica ? '<button type="button" class="cfg-ajuda" aria-expanded="false" title="O que é isto?"><b aria-hidden="true">?</b></button>' : ''}</span>${status ? `<small class="r-status">${status}</small>` : ''}</span>
@@ -858,6 +908,64 @@
       ${ajustes ? `<div class="r-ajustes">${ajustes}</div>` : ''}
     </div>`;
   const miniR = (k, on, rotulo, inverso = false) => `<label class="r-mini">${tg(k, on, inverso)}<span>${rotulo}</span></label>`;
+  const NOMES_RARIDADE = {
+    comum: 'Comum',
+    incomum: 'Incomum',
+    rara: 'Rara',
+    mitica: 'Mítica',
+    lendaria: 'Lendária',
+  };
+  const seletor3Estados = (grupo, b, rotuloPadrao = '') => {
+    const chave = typeof grupo === 'object' ? grupo.chave : grupo;
+    const valorAtual = (b && b[chave]) || 'off';
+    const rotulo = typeof grupo === 'object' ? grupo.rotulo : (rotuloPadrao || chave);
+    const comRaridade = typeof grupo === 'object' && grupo.temRaridade === true;
+    const chaveRar = typeof grupo === 'object' ? grupo.chaveRar : null;
+    const rarAtual = (chaveRar && b && b[chaveRar]) || (grupo && grupo.padraoRar) || 'comum';
+
+    const seletorRaridade = comRaridade ? `
+      <div class="r-sublinha-rar">
+        <span class="r-rot-rar">Vender até:</span>
+        <span class="r-seg-rar" role="group">
+          ${['comum', 'incomum', 'rara', 'mitica', 'lendaria'].map((r) => `
+            <button type="button" class="r-bt-rar${rarAtual === r ? ' on' : ''}" data-cfg-rar="${chaveRar}" data-rar="${r}" title="Vender até ${NOMES_RARIDADE[r]}">${NOMES_RARIDADE[r]}</button>
+          `).join('')}
+        </span>
+      </div>` : '';
+
+    if (!comRaridade) {
+      return `
+        <div class="r-linha-venda">
+          <span class="r-nome-venda">${escH(rotulo)}</span>
+          <span class="r-seg-3" role="group">
+            <button type="button" class="r-bt-3${valorAtual === 'off' ? ' on' : ''}" data-cfg3="${chave}" data-val="off" title="Não vender">Off</button>
+            <button type="button" class="r-bt-3${valorAtual === 'orb' ? ' on' : ''}" data-cfg3="${chave}" data-val="orb" title="Vender por Gemas">Gemas</button>
+            <button type="button" class="r-bt-3${valorAtual === 'gold' ? ' on' : ''}" data-cfg3="${chave}" data-val="gold" title="Vender por Ouro">Ouro</button>
+          </span>
+        </div>`;
+    }
+
+    return `
+      <div class="r-linha-venda r-linha-venda-raridade">
+        <div class="r-linha-venda-topo">
+          <span class="r-nome-venda">${escH(rotulo)}</span>
+          <span class="r-seg-3" role="group">
+            <button type="button" class="r-bt-3${valorAtual === 'off' ? ' on' : ''}" data-cfg3="${chave}" data-val="off" title="Não vender">Off</button>
+            <button type="button" class="r-bt-3${valorAtual === 'orb' ? ' on' : ''}" data-cfg3="${chave}" data-val="orb" title="Vender por Gemas">Gemas</button>
+            <button type="button" class="r-bt-3${valorAtual === 'gold' ? ' on' : ''}" data-cfg3="${chave}" data-val="gold" title="Vender por Ouro">Ouro</button>
+          </span>
+        </div>
+        ${seletorRaridade}
+      </div>`;
+  };
+  const miniVendaItem = (kToggle, on, kMoeda, moeda, rotulo) => `
+    <div class="r-mini-venda">
+      <label class="r-mini">${tg(kToggle, on)}<span>${rotulo}</span></label>
+      <span class="r-seg-moeda" role="group">
+        <button type="button" class="r-bt-moeda${moeda !== 'orb' ? ' on' : ''}" data-cfg-moeda="${kMoeda}" data-moeda="gold" title="Vender por Ouro">Ouro</button>
+        <button type="button" class="r-bt-moeda${moeda === 'orb' ? ' on' : ''}" data-cfg-moeda="${kMoeda}" data-moeda="orb" title="Vender por Gemas">Gemas</button>
+      </span>
+    </div>`;
   function statusRadar() {
     const e = s.estado;
     if (!s.cfg.radarLigado) return 'desligado';
@@ -870,7 +978,7 @@
     return linhaR({ nome: 'Radar do Mercado', k: 'radarLigado', on: b.radarLigado, status: statusRadar(), dica: 'Vigia o Mercado sem parar e avisa as oportunidades em ouro. Gema e diamante nunca.' })
       + linhaR({ nome: 'Comprar itens sozinho', k: 'compraAutomatica', on: b.compraAutomatica, status: b.compraAutomatica ? gasto : '', dica: 'Tudo o que vira aviso é comprado sozinho, se couber no ouro livre do cofre do Piloto. Entra em todos os sorteios que passam nas regras, vários ao mesmo tempo.' })
       + linhaR({ nome: 'Comprar pokémon sozinho', k: 'compraAutomaticaPokemon', on: b.compraAutomaticaPokemon, dica: 'Não shiny, em ouro, pelas vendas parecidas dos últimos 30 dias. Com 5 a 7 vendas parecidas, só compra se der lucro mesmo vendendo pelo preço da parecida mais barata. Quanto gastar é o cofre que decide.' })
-      + linhaR({ nome: 'Revender sozinho', k: 'revendaAutomatica', on: b.revendaAutomatica, status: b.revendaAutomatica ? 'anuncia, baixa e sobe o preço a cada 2 min' : '', dica: 'Anuncia o que está parado, baixa o preço quando alguém passa na frente e sobe quando você ficou 5% abaixo do próximo. Sempre 1 abaixo do menor anúncio de outro jogador, nunca abaixo do custo + 15%. Pokémon também: só os que não servem para você (fora do time, do PvP e dos que valem treinar), nunca shiny nem lendário, com 5+ vendas parecidas e nunca abaixo do que você pagou; a diária passa pelo cofre.' });
+      + linhaR({ nome: 'Revender sozinho', k: 'revendaAutomatica', on: b.revendaAutomatica, status: b.revendaAutomatica ? 'anuncia, baixa e sobe o preço a cada 2 min' : '', dica: 'Anuncia o que está parado, baixa o preço quando alguém passa na frente e sobe quando você ficou 5% abaixo do próximo. Sempre 1 abaixo do menor anúncio de outro jogador, nunca abaixo do custo + 15%. Pokémon também: só os que não servem para você (fora do time, do PvP e dos que valem treinar), nunca shiny nem lendário, com 5+ vendas parecidas e nunca abaixo do que você pagou; a diária passa pelo cofre. Com pedras de evolução, ficam 2 de cada tipo guardadas no estoque para evoluir um pokémon que aparecer, sem precisar comprar.' });
   }
   function pintarFaixa() {
     if (!p.faixa) return;
@@ -888,30 +996,85 @@
     // 1.53.4: Ajustes e Alvos valem nos dois modos.
     if (p.abas && p.abas.ajustes) p.abas.ajustes.hidden = false;
     if (p.abas && p.abas.alvos) p.abas.alvos.hidden = false;
-    if (p.abrirOpcoes) p.abrirOpcoes.hidden = false;
     pintarFaixa();
     if (s.aba === 'ajustes') pintarAjustes();
   }
   function aoClicarNosAjustes(ev) {
     const t = ev.target.closest('button');
-    if (!t || t.disabled) return;
+    if (!t) return;
     if (t.matches('.cfg-ajuda')) { const l = t.closest('.cfg-linha'); if (l) { l.classList.toggle('aberta'); t.setAttribute('aria-expanded', String(l.classList.contains('aberta'))); } return; }
+    // 1.53.13: o atributo é `data-cfg3`, sem hífen. `data-cfg-3` virava dataset['cfg-3'] e
+    // `dataset.cfg3` ficava undefined: o clique mudava só a cor e não gravava nada (por isso o
+    // estado voltava a Off no F5).
+    const bt3 = t.closest('.r-bt-3[data-cfg3], .r-bt-3[data-cfg-3]');
+    if (bt3) {
+      const k = bt3.dataset.cfg3 || bt3.dataset['cfg-3'];
+      const val = bt3.dataset.val || 'off';
+      const seg = bt3.closest('.r-seg-3');
+      if (seg) {
+        for (const bt of seg.querySelectorAll('.r-bt-3')) bt.classList.toggle('on', bt === bt3);
+      }
+      if (!k) return;
+      s.base[k] = val;
+      if (k === 'vendaStones') s.base._stonesManual = true;
+      if (s.modoPiloto === 'automatico') {
+        gravarEscolhaAuto(k, val).catch(erro);
+      }
+      salvarConfig({ [k]: val, ...(k === 'vendaStones' ? { _stonesManual: true } : {}) }).catch(erro);
+      return;
+    }
+    if (t.matches('.r-bt-rar[data-cfg-rar]')) {
+      const k = t.dataset.cfgRar;
+      const rar = t.dataset.rar || 'comum';
+      const seg = t.closest('.r-seg-rar');
+      if (seg) {
+        for (const bt of seg.querySelectorAll('.r-bt-rar')) bt.classList.toggle('on', bt === t);
+      }
+      s.base[k] = rar;
+      if (s.modoPiloto === 'automatico') {
+        gravarEscolhaAuto(k, rar).catch(erro);
+      }
+      salvarConfig({ [k]: rar }).catch(erro);
+      return;
+    }
+    if (t.matches('.r-bt-moeda[data-cfg-moeda]')) {
+      const k = t.dataset.cfgMoeda;
+      const moeda = t.dataset.moeda || 'gold';
+      const seg = t.closest('.r-seg-moeda');
+      if (seg) {
+        for (const bt of seg.querySelectorAll('.r-bt-moeda')) bt.classList.toggle('on', bt === t);
+      }
+      s.base[k] = moeda;
+      salvarConfig({ [k]: moeda }).catch(erro);
+      return;
+    }
     if (t.matches('.cfg-toggle[data-cfg]')) {
+      if (t.disabled) return;
       const k = t.dataset.cfg;
       const ligado = !t.classList.contains('on');
+      t.classList.toggle('on', ligado);
+      t.setAttribute('aria-checked', String(ligado));
+      s.base[k] = ligado;
+      // 1.53.7: ligar/desligar o Radar também é uma escolha explícita. O interruptor dos Ajustes e o
+      // da faixa passam por aqui; sem gravar, um valor antigo em radar:auto-escolhas desfazia o que
+      // você configurou no F5.
+      if (k === 'radarLigado') gravarEscolhaRadar(ligado);
       // No Automático, o que você desligar fica desligado também depois de recarregar a página.
       if (s.modoPiloto === 'automatico' && ESCOLHAS_AUTO.includes(k)) {
-        const valor = t.dataset.inverso ? !ligado : ligado;
-        chrome.storage.local.get('radar:auto-escolhas').then((r) => chrome.storage.local.set({ 'radar:auto-escolhas': { ...(r['radar:auto-escolhas'] || {}), [k]: valor } })).catch(erro);
+        gravarEscolhaAuto(k, t.dataset.inverso ? !ligado : ligado).catch(erro);
       }
       if (k === 'vigiaContinua') salvarConfig({ vigiaContinua: ligado, intervaloS: 30 }).catch(erro);
       else salvarConfig({ [k]: t.dataset.inverso ? !ligado : ligado }).catch(erro);
       return;
     }
     if (t.matches('[data-categoria]')) {
-      const set = new Set(s.base.categorias);
-      if (set.has(t.dataset.categoria)) set.delete(t.dataset.categoria); else set.add(t.dataset.categoria);
+      const cat = t.dataset.categoria;
+      const set = new Set(s.base.categorias || []);
+      if (set.has(cat)) set.delete(cat); else set.add(cat);
+      t.classList.toggle('on', set.has(cat));
+      s.base.categorias = [...set];
       salvarConfig({ categorias: [...set] }).catch(erro);
+      return;
     }
   }
 
@@ -954,12 +1117,21 @@
         ['Pokémon: lucro mín.', campo('lucroMinimoPokemon', b.lucroMinimoPokemon, 10000), 'Depois dos 15% e de um dia de diária'],
       ].map(([k, v, d]) => `<label class="lim editavel" title="${escH(d)}"><small>${k}</small>${v}</label>`).join('')}</div>`
       : `<div class="lims">${blocos.map(([k, v, d]) => `<div class="lim" title="${escH(d)}"><small>${k}</small><b>${v}</b></div>`).join('')}</div>`;
-    const cats = `<div class="cfg-escala">${[...catalogoCats].map(([cat, n]) => `<button type="button" class="cfg-escala-bt${b.categorias.includes(cat) ? ' on' : ''}" data-categoria="${escH(cat)}"${trava() ? ' disabled' : ''}>${escH(NOMES_CATEGORIA[cat] || cat)}${typeof n === 'number' ? ` (${n})` : ''}</button>`).join('')}</div>`;
+    const cats = `<div class="cfg-escala">${[...catalogoCats].map(([cat, n]) => `<button type="button" class="cfg-escala-bt${b.categorias.includes(cat) ? ' on' : ''}" data-categoria="${escH(cat)}">${escH(NOMES_CATEGORIA[cat] || cat)}${typeof n === 'number' ? ` (${n})` : ''}</button>`).join('')}</div>`;
+    const gruposItens = (Config.GRUPOS_VENDA || []).filter((g) => g.secao === 'itens');
+    const gruposFrags = (Config.GRUPOS_VENDA || []).filter((g) => g.secao === 'frags');
+    const linhasVenda = `
+      <div class="r-bloco-venda">
+        <div class="r-subtitulo-venda">Itens Completos</div>
+        <div class="r-linhas-venda">${gruposItens.map((g) => seletor3Estados(g, b)).join('')}</div>
+        <div class="r-subtitulo-venda" style="margin-top: 10px;">Fragmentos</div>
+        <div class="r-linhas-venda">${gruposFrags.map((g) => seletor3Estados(g, b)).join('')}</div>
+      </div>`;
     const html = `<div class="cfg-linhas r-linhas">
       ${linhasPrincipais(b)}
       ${linhaR({ nome: 'Vigia contínua', k: 'vigiaContinua', on: b.vigiaContinua, dica: 'Uma varredura atrás da outra, sem intervalo. O freio é só o limite de leituras do servidor; se ele reclamar, o radar espaça sozinho até normalizar.' })}
       ${linhaR({ nome: 'Calcular os limites sozinho', k: 'ajusteAutomatico', on: b.ajusteAutomatico, dica: 'Pelo seu ouro/h e pelo cofre do Piloto. O motivo de não comprar aparece no Resumo.', ajustes: lims })}
-      ${linhaR({ nome: 'O que vigiar', dica: 'As categorias de itens que o radar olha. Pokémon em ouro: os anúncios de pokémon, não shiny.', ajustes: `${cats}${miniR('pokemon', b.pokemon, 'Pokémon em ouro')}${miniR('revendaSoDoRadar', !b.revendaSoDoRadar, 'Revender também os seus drops', true)}` })}
+      ${linhaR({ nome: 'O que vigiar', dica: 'As categorias e itens que o radar vigia. Escolha para cada item ou pokémon se deseja Não Vender (Off), Vender por Gemas (rosa) ou Vender por Ouro (amarelo).', ajustes: `${cats}${linhasVenda}` })}
       ${linhaR({ nome: 'Como avisar', ajustes: `${miniR('notificacoes', b.notificacoes, 'Notificação')}${miniR('som', b.som, 'Som')}${miniR('abrirPainelNoAviso', b.abrirPainelNoAviso, 'Abrir o painel no aviso')}` })}
     </div>`;
     if (alvo._html !== html) { alvo._html = html; alvo.innerHTML = html; }
@@ -1085,8 +1257,12 @@
     const alvo = p.mercado;
     alvo.textContent = '';
     const m = s.mercado;
-    if (!m || !m.linhas.length) {
+    if (!m) {
       alvo.append(el('p', 'vazio', s.cfg.radarLigado ? 'Esperando a primeira consulta do radar.' : 'Ligue o radar para ver o mercado dos itens vigiados.'));
+      return;
+    }
+    if (!m.linhas.length) {
+      alvo.append(el('p', 'vazio', `O radar consultou o mercado ${ha(m.em)} e nenhum item vigiado tem anúncio em ouro agora.`));
       return;
     }
     alvo.append(el('p', 'nota', `${m.linhas.length} itens com anúncio em ouro, atualizado ${ha(m.em)}. Revenda: o menor entre a mediana de 24 h, a média de 7 dias e, nos itens conferidos (•), o próximo da fila.`));

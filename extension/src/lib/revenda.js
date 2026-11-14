@@ -88,11 +88,12 @@
 
   // qtd: unidades no inventário; meuAnuncio: o anúncio aberto dele deste item (ou null).
   // agora: hora do servidor (para a espera de 30 min entre mudanças de preço, v1.305).
-  function sugerir({ qtd, linhas, meuId, custo, media7d, meuAnuncio, anunciosAbertos, agora }) {
-    const piso = pisoDe(custo.porUnidade);
+  function sugerir({ qtd, linhas, meuId, custo, media7d, meuAnuncio, anunciosAbertos, agora, moeda = 'gold' }) {
+    const orb = moeda === 'orb';
+    const piso = orb ? (custo && custo.moeda === 'orb' ? Math.max(2, Math.ceil(custo.porUnidade / (1 - TAXA))) : 2) : pisoDe(custo.porUnidade);
     const todos = P.ordenar(linhas).filter((l) => !P.ehMeu(l, meuId));
     const fila = filaDeOutros({ linhas, meuId, piso: corteDe(todos, piso) });
-    const base = { piso, fila: fila.slice(0, FILA_MOSTRADA).map((l) => l.preco), ignorados: todos.length - fila.length };
+    const base = { piso, fila: fila.slice(0, FILA_MOSTRADA).map((l) => l.preco), ignorados: todos.length - fila.length, moeda };
     let preco;
     let fonte;
     if (fila.length) {
@@ -125,7 +126,7 @@
     }
     const precoDoCartao = acao === 'primeiro' ? meuAnuncio.preco : preco;
     const liquido = liquidoDe(precoDoCartao, qtdCartao);
-    const lucro = liquido - custo.porUnidade * qtdCartao;
+    const lucro = orb ? (custo && custo.moeda === 'orb' ? liquido - custo.porUnidade * qtdCartao : liquido) : liquido - custo.porUnidade * qtdCartao;
     const esperaEditarMs = acao === 'espera-editar' ? meuAnuncio.editavelEm - agora : null;
     return { ...base, preco, fonte, acao, qtdCartao, liquido, lucro, esperaEditarMs };
   }
@@ -139,23 +140,30 @@
     const anunciosAbertos = abertos.length;
     const ids = new Set();
     for (const [id, q] of Object.entries(inventario || {})) if (positivo(Number(q))) ids.add(Number(id));
-    for (const m of abertos) if (m.tipoItem === 'item' && m.moeda === 'gold' && m.itemId) ids.add(m.itemId);
+    for (const m of abertos) if (m.tipoItem === 'item' && m.itemId) ids.add(m.itemId);
     const lista = [];
     for (const id of ids) {
       const item = catalogo && catalogo.get(id);
-      if (!item || !Config.itemLiberado(config, item)) continue;
+      // 1.53.8: Boss Token, Mystic Ticket e Safari Ticket só entram na revenda com o interruptor do
+      // item ligado (Ajustes > O que vigiar). Sem ele, nunca são anunciados, nem no automático.
+      if (!item || !Config.itemLiberado(config, item) || !Config.itemVendavel(config, item)) continue;
+      const moeda = Config.moedaDoItem ? Config.moedaDoItem(config, item) : 'gold';
       const qtd = Math.max(0, Math.floor(Number((inventario || {})[id]) || 0));
-      const meuAnuncio = abertos.find((m) => m.itemId === id && m.moeda === 'gold') || null;
+      const meuAnuncio = abertos.find((m) => m.itemId === id && (m.moeda || 'gold') === moeda) || null;
       if (ocultos && ocultos.has(id) && ocultos.get(id) === qtd) continue;
       const custo = custoMedio({ compras, nome: item.nome, qtd: qtd + (meuAnuncio ? meuAnuncio.qtd || 0 : 0) });
       const r = resumo && resumo[id];
-      const livro = livros && livros.get(id);
-      const comum = { itemId: id, nome: item.nome, qtd, meuAnuncio, custo, volume7d: r ? r.volume7d : null, livroEm: livro ? livro.em : null };
-      if (!livro) {
-        lista.push({ ...comum, acao: 'sem-livro', piso: pisoDe(custo.porUnidade), preco: null, fila: [], ignorados: 0, qtdCartao: qtd, liquido: null, lucro: null });
+      const media7d = r ? (moeda === 'orb' ? r.mediaOrb : r.mediaGold) : null;
+      const chaveLivro = `${id}:${moeda}`;
+      const livro = (livros && (livros.get(chaveLivro) || livros.get(id))) || null;
+      const livroValido = Boolean(livro && (livro.moeda ? livro.moeda === moeda : moeda === 'gold'));
+      const piso = moeda === 'orb' ? (custo && custo.moeda === 'orb' ? Math.max(2, Math.ceil(custo.porUnidade / (1 - TAXA))) : 2) : pisoDe(custo.porUnidade);
+      const comum = { itemId: id, nome: item.nome, qtd, meuAnuncio, custo, volume7d: r ? r.volume7d : null, livroEm: livroValido ? livro.em : null, moeda, piso };
+      if (!livroValido) {
+        lista.push({ ...comum, acao: 'sem-livro', preco: null, fila: [], ignorados: 0, qtdCartao: qtd, liquido: null, lucro: null });
         continue;
       }
-      lista.push({ ...comum, ...sugerir({ qtd, linhas: livro.linhas, meuId, custo, media7d: r ? r.media7d : null, meuAnuncio, anunciosAbertos, agora }) });
+      lista.push({ ...comum, ...sugerir({ qtd, linhas: livro.linhas, meuId, custo, media7d, meuAnuncio, anunciosAbertos, agora, moeda }) });
     }
     return lista.sort((a, b) => Number(b.custo.doRadar) - Number(a.custo.doRadar) || (b.lucro ?? -Infinity) - (a.lucro ?? -Infinity));
   }
@@ -206,14 +214,19 @@
   }
   // O inventário que a revenda pode usar: o que você tem menos o comprado à mão e menos as pedras
   // que o time vai gastar para evoluir.
-  function inventarioRevendavel(inventario, catalogo, { manuais, pedrasDoTime } = {}) {
+  // 1.53.6: com a revenda automática ligada, reservarPedras guarda um piso de pedras de evolução
+  // de cada tipo (as compradas à mão e as do time continuam valendo; vale a maior proteção).
+  const PEDRAS_POR_TIPO = 2;
+  function inventarioRevendavel(inventario, catalogo, { manuais, pedrasDoTime, reservarPedras = 0 } = {}) {
     const out = {};
     for (const [id, q] of Object.entries(inventario || {})) {
       const item = catalogo && catalogo.get(Number(id));
       const nome = item && item.nome;
       const mao = nome && manuais && manuais.itens ? Number(manuais.itens[nome]) || 0 : 0;
       const time = pedrasDoTime ? Number(pedrasDoTime[id]) || 0 : 0;
-      out[id] = Math.max(0, Math.floor(Number(q) || 0) - mao - time);
+      const protegido = mao + time;
+      const guardadas = reservarPedras > 0 && item && item.categoria === 'stone' ? Math.max(reservarPedras, protegido) : protegido;
+      out[id] = Math.max(0, Math.floor(Number(q) || 0) - guardadas);
     }
     return out;
   }
@@ -221,5 +234,5 @@
   // O número da aba: cartões com algo a fazer e lucro.
   const comAcao = (s) => (s.acao === 'anunciar' || s.acao === 'mudar-preco') && s.lucro > 0;
 
-  return { TAXA, PRECO_MINIMO, MAX_ANUNCIOS, juntarCompras, custoMedio, pisoDe, filaDeOutros, liquidoDe, sugerir, montarSugestoes, comAcao, livroManualVazio, atualizarManuais, inventarioRevendavel };
+  return { TAXA, PRECO_MINIMO, MAX_ANUNCIOS, PEDRAS_POR_TIPO, juntarCompras, custoMedio, pisoDe, filaDeOutros, liquidoDe, sugerir, montarSugestoes, comAcao, livroManualVazio, atualizarManuais, inventarioRevendavel };
 });

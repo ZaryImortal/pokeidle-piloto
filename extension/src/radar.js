@@ -177,7 +177,12 @@
   async function sw(mensagem) {
     try {
       if (!ponte.storage()) return null;
-      const r = await chrome.runtime.sendMessage(mensagem);
+      // 1.53.5: se o script de fundo não responder (worker morto, extensão recarregada), a tela
+      // não pode ficar presa em "lendo o mercado…" para sempre: depois de 8 s, segue sem a resposta.
+      const r = await Promise.race([
+        chrome.runtime.sendMessage(mensagem),
+        new Promise((res) => setTimeout(() => res(undefined), 8000)),
+      ]);
       if (r && r.erro) { erro(r.erro); return null; }
       return r ? r.dados : null;
     } catch (e) {
@@ -299,7 +304,7 @@
 
   const ERROS_DE_FORA = new Set(['shop', 'team', 'hunt', 'centro', 'xpshare', 'pvp', 'passe', 'outland', 'pokemon', 'chocadeira', 'oferenda', 'auto', 'batalha', 'campo', 'guild', 'amigo', 'orbs', 'loja', 'ginasio', 'casa', 'colecao']);
   const casaItens = (d) => d.aba === 'itens';
-  const casaItem = (itemId) => (d) => d.aba === 'item' && Number(d.itemId) === itemId && d.moeda === 'gold';
+  const casaItem = (itemId, moeda = 'gold') => (d) => d.aba === 'item' && Number(d.itemId) === itemId && (d.moeda || 'gold') === moeda;
 
   // Pedido sem resposta. Se o jogo inteiro ficou calado (o servidor reinicia a cada atualização do
   // jogo), só espaça as consultas; senão conta, e 5 seguidas pausam com uma tentativa a cada 10 min.
@@ -392,7 +397,7 @@
       s.recuo = A.registrar(s.recuo, true);
       s.ultimoCiclo = Date.now();
       await processarResumo(resp);
-      if (s.config.pokemon && !A.motivoDePausa(contextoDePausa())) await processarPokemon();
+      if ((s.config.pokemon || s.config.vendaPokemon !== 'off' || s.config.compraAutomaticaPokemon) && !A.motivoDePausa(contextoDePausa())) await processarPokemon();
       if (!A.motivoDePausa(contextoDePausa())) await lerVendasDeFundo();
       // 1.12.3: a revenda corre à parte (antes, a volta dela parava as varreduras por até 45 s).
       if (!A.motivoDePausa(contextoDePausa())) revendaAutomatica().catch(erro);
@@ -451,7 +456,13 @@
     }
     s.itensCobertos = amostras.length;
     conferirSaidas(amostras, lista);
-    if (!amostras.length) return;
+    // 1.53.5: mesmo sem nenhum anúncio em ouro, a aba Ofertas recebe a consulta (não fica "esperando"
+    // para sempre) e mostra que o radar olhou e não havia nada.
+    if (!amostras.length) {
+      s.ultimaVitrine = { amostras: [], historico: {}, em: agora };
+      emitirMercado();
+      return;
+    }
     // A referência vem do histórico de ANTES desta leitura: com a amostra de agora dentro, um
     // preço baixo viraria a própria mediana e nunca pareceria barato.
     const historico = (await sw({ tipo: 'historico:resumo', itemIds: amostras.map((a) => a.itemId), agora, antesDe: H.balde(agora) })) || {};
@@ -734,7 +745,11 @@
     const comEspecie = Array.isArray(d.linhas) ? d.linhas.filter((l) => esp(l) != null) : [];
     return !comEspecie.length || comEspecie.some((l) => Number(esp(l)) === Number(especieId));
   };
-  const moedasDePokemon = () => (s.config.pokemonGemas ? ['gold', 'orb'] : ['gold']);
+  const moedasDePokemon = () => {
+    if (s.config.vendaPokemon === 'orb') return ['orb', 'gold'];
+    if (s.config.pokemonGemas) return ['gold', 'orb'];
+    return ['gold'];
+  };
 
   // Anúncios novos de pokémon: um market.listar "mais recentes" por moeda e por ciclo. As vendas
   // de 30 dias de uma espécie vêm da Tabela de preços e ficam guardadas por 6 h; por ciclo e por
@@ -1301,7 +1316,11 @@
     const meus = Pessoal.normalizarMeus((s.revenda.meus && s.revenda.meus.linhas) || [], agoraServidor());
     const compras = Rv.juntarCompras(s.revenda.registro || [], (s.revenda.historico && s.revenda.historico.linhas) || []);
     // 1.27: a pedra comprada para o time evoluir não entra na revenda
-    const inventario = auto ? Rv.inventarioRevendavel(s.conta.itens || {}, s.catalogo, { manuais: s.revenda.manuais, pedrasDoTime: pedrasDoTimeAgora() }) : (s.conta.itens || {});
+    // 1.53.6: com a revenda automática ligada, ficam 2 pedras de cada tipo no estoque para evoluir
+    // um pokémon que aparecer, sem precisar comprar.
+    const inventario = auto
+      ? Rv.inventarioRevendavel(s.conta.itens || {}, s.catalogo, { manuais: s.revenda.manuais, pedrasDoTime: pedrasDoTimeAgora(), reservarPedras: s.config.revendaAutomatica ? Rv.PEDRAS_POR_TIPO : 0 })
+      : (s.conta.itens || {});
     const sugestoes = Rv.montarSugestoes({ inventario, catalogo: s.catalogo, config: s.config, livros: s.livros, meus, compras, resumo, meuId: s.conta.id, ocultos: s.revenda.ocultos, agora: agoraServidor() }).filter((sg) => !pedraGuardada(sg.itemId));
     return { meus, sugestoes };
   }
@@ -1337,7 +1356,8 @@
     if (!(sg.acao === 'anunciar' || sg.acao === 'mudar-preco')) return false;
     if (emEspera(sg.itemId)) return false;
     if (!(typeof sg.preco === 'number' && sg.preco >= sg.piso)) return false;
-    if (s.config.revendaSoDoRadar && !(sg.custo && sg.custo.doRadar)) return false;
+    const item = s.catalogo && s.catalogo.get(sg.itemId);
+    if (!Config.itemVendavel(s.config, item)) return false;
     // Anunciar não custa nada (item não paga diária) e o piso já garante custo + 15%: basta ter
     // lucro. Só com as vagas apertando (15 de 20 abertas) o lucro mínimo da revenda entra, para os
     // últimos anúncios irem para o que rende mais. Mudar o preço: o piso basta.
@@ -1378,24 +1398,31 @@
         if (!candidato) break;
         feitos.add(candidato.itemId);
         // O preço de agora: relê o livro do item se tiver mais de 1 min.
-        const livro = s.livros.get(candidato.itemId);
+        const moeda = candidato.moeda || 'gold';
+        const chaveLivro = `${candidato.itemId}:${moeda}`;
+        const livro = s.livros.get(chaveLivro) || (moeda === 'gold' ? s.livros.get(candidato.itemId) : null);
         if (!livro || Date.now() - livro.em > LIVRO_FRESCO_MS) {
           await esperar(pausaEntrePedidos());
-          const dados = await pedir({ t: 'market.item', itemId: candidato.itemId, moeda: 'gold' }, casaItem(candidato.itemId));
-          if (dados) s.livros.set(candidato.itemId, { linhas: dados.linhas || [], em: Date.now() });
+          const dados = await pedir({ t: 'market.item', itemId: candidato.itemId, moeda }, casaItem(candidato.itemId, moeda));
+          if (dados) {
+            const reg = { linhas: dados.linhas || [], em: Date.now(), moeda };
+            s.livros.set(chaveLivro, reg);
+            s.livros.set(candidato.itemId, reg);
+          }
         }
         const alvo = calcularSugestoes({ auto: true }).sugestoes.find((sg) => sg.itemId === candidato.itemId);
         if (!alvo || !cartaoAutomatico(alvo)) continue;
         const tipo = alvo.acao === 'anunciar' ? 'criar' : 'editar';
-        await acaoDeRevenda({ tipo, itemId: alvo.itemId, qtd: alvo.qtdCartao, preco: alvo.preco, anuncioId: alvo.meuAnuncio ? alvo.meuAnuncio.id : undefined, auto: true });
+        await acaoDeRevenda({ tipo, itemId: alvo.itemId, qtd: alvo.qtdCartao, preco: alvo.preco, anuncioId: alvo.meuAnuncio ? alvo.meuAnuncio.id : undefined, moeda: alvo.moeda || 'gold', auto: true });
         await esperarVoo();
         const r = s.revenda.acoes.get(alvo.itemId);
         if (r && r.fase === 'ok') {
           const subiu = tipo === 'editar' && alvo.meuAnuncio && alvo.preco > alvo.meuAnuncio.preco;
-          const texto = tipo === 'criar' ? `Anunciei ${fmtN(alvo.qtdCartao)} × ${fmtN(alvo.preco)}` : `${subiu ? 'Subi' : 'Baixei'} o preço para ${fmtN(alvo.preco)}`;
+          const unidade = alvo.moeda === 'orb' ? ' Gemas' : '';
+          const texto = tipo === 'criar' ? `Anunciei ${fmtN(alvo.qtdCartao)} × ${fmtN(alvo.preco)}${unidade}` : `${subiu ? 'Subi' : 'Baixei'} o preço para ${fmtN(alvo.preco)}${unidade}`;
           // Vai para "Últimas ações" no Resumo do Piloto.
           document.dispatchEvent(new CustomEvent('piloto:radar-diario', { detail: JSON.stringify({ t: Date.now(), txt: `revenda: ${alvo.nome}: ${texto}`, tipo: 'ok' }) }));
-          if (s.config.notificacoes) sw({ tipo: 'notificar', titulo: `Revenda: ${alvo.nome}`, mensagem: `${texto} · lucro estimado ${fmtN(alvo.lucro)}` });
+          if (s.config.notificacoes) sw({ tipo: 'notificar', titulo: `Revenda: ${alvo.nome}`, mensagem: `${texto} · lucro estimado ${fmtN(alvo.lucro)}${unidade}` });
           // Item editado só muda de novo em 30 min.
           if (tipo === 'editar') segurar(alvo.itemId, 30 * 60000);
         } else if (!s.revenda.esperaAte.has(alvo.itemId)) {
@@ -1628,7 +1655,7 @@
     }).cartoes;
   }
   async function revendaPkAutomatica() {
-    if (!s.config.revendaAutomatica || s.parado || !s.socketAberto || s.revenda.pkAutoRodando) return;
+    if (!s.config.revendaAutomatica || s.parado || !s.socketAberto || s.revenda.pkAutoRodando || s.config.vendaPokemon === 'off') return;
     if (Date.now() - (s.ultimaRevendaPkAuto || 0) < REVENDA_PK_AUTO_MS) return;
     const g = s.pkGuardados;
     if (!g || Date.now() - g.em > GUARDA_VALE_MS) return;
@@ -1642,7 +1669,8 @@
       const manuaisPk = new Set(((s.revenda.manuais && s.revenda.manuais.pokemons) || []).map(Number));
       if (s.revenda.manuaisProntos && !s.revenda.manuaisEm) { await pedirRevenda({}); try { atualizarLivroManual(); } catch (e) { erro(e); } }
       if (!s.revenda.manuaisProntos || !s.revenda.manuaisEm) return; // 1.33.9: sem o livro, não anuncia
-      const pode = (c) => c.ficha && c.ficha.moeda === 'gold' && !c.ficha.shiny && !emEsperaPk(c.pokemonId) && !manuaisPk.has(Number(c.pokemonId)) && !(c.custo && c.custo.fonte === 'jogo')
+      const moedaAlvo = s.config.vendaPokemon || 'gold';
+      const pode = (c) => c.ficha && (c.ficha.moeda || 'gold') === moedaAlvo && (moedaAlvo === 'orb' || !c.ficha.shiny) && !emEsperaPk(c.pokemonId) && !manuaisPk.has(Number(c.pokemonId)) && !(c.custo && c.custo.fonte === 'jogo')
         && (c.grupo === 'mudar' || (vagas && !g.ids.has(c.pokemonId)));
       // Mudar o preço primeiro (já está à venda); depois os comprados pelo radar e a maior nota.
       const fila = cartoesPk().filter(pode).sort((x, y) => Number(y.grupo === 'mudar') - Number(x.grupo === 'mudar'));
@@ -1807,16 +1835,39 @@
       // Livros: dos itens que ele tem (ou anunciou) e que estão vigiados, os mais velhos primeiro.
       const meus = Pessoal.normalizarMeus((s.revenda.meus && s.revenda.meus.linhas) || [], agoraServidor());
       const ids = new Set(Object.entries(s.conta.itens || {}).filter(([, q]) => q > 0).map(([id]) => Number(id)));
-      for (const m of meus) if (m.itemId && m.moeda === 'gold') ids.add(m.itemId);
+      for (const m of meus) if (m.itemId) ids.add(m.itemId);
       const velhos = [...ids]
-        .filter((id) => { const item = s.catalogo.get(id); return item && Config.itemLiberado(s.config, item); })
-        .filter((id) => forcar || !s.livros.has(id) || Date.now() - s.livros.get(id).em > LIVRO_VALE_MS)
-        .sort((a, b) => ((s.livros.get(a) || {}).em || 0) - ((s.livros.get(b) || {}).em || 0))
+        .filter((id) => {
+          const item = s.catalogo.get(id);
+          const temAberto = meus.some((m) => m.itemId === id);
+          return item && Config.itemLiberado(s.config, item) && (temAberto || Config.itemVendavel(s.config, item));
+        })
+        .filter((id) => {
+          const item = s.catalogo.get(id);
+          const moeda = item && Config.moedaDoItem ? Config.moedaDoItem(s.config, item) : 'gold';
+          const chaveLivro = `${id}:${moeda}`;
+          const l = s.livros.get(chaveLivro) || (moeda === 'gold' ? s.livros.get(id) : null);
+          return forcar || !l || Date.now() - l.em > LIVRO_VALE_MS;
+        })
+        .sort((a, b) => {
+          const itemA = s.catalogo.get(a), itemB = s.catalogo.get(b);
+          const mA = itemA && Config.moedaDoItem ? Config.moedaDoItem(s.config, itemA) : 'gold';
+          const mB = itemB && Config.moedaDoItem ? Config.moedaDoItem(s.config, itemB) : 'gold';
+          const lA = s.livros.get(`${a}:${mA}`) || s.livros.get(a);
+          const lB = s.livros.get(`${b}:${mB}`) || s.livros.get(b);
+          return ((lA && lA.em) || 0) - ((lB && lB.em) || 0);
+        })
         .slice(0, MAX_LIVROS_POR_ABERTURA);
       for (const id of velhos) {
+        const item = s.catalogo.get(id);
+        const moeda = item && Config.moedaDoItem ? Config.moedaDoItem(s.config, item) : 'gold';
         await esperar(pausaEntrePedidos());
-        const dados = await pedir({ t: 'market.item', itemId: id, moeda: 'gold' }, casaItem(id));
-        if (dados) s.livros.set(id, { linhas: dados.linhas || [], em: Date.now() });
+        const dados = await pedir({ t: 'market.item', itemId: id, moeda }, casaItem(id, moeda));
+        if (dados) {
+          const reg = { linhas: dados.linhas || [], em: Date.now(), moeda };
+          s.livros.set(`${id}:${moeda}`, reg);
+          s.livros.set(id, reg);
+        }
         emitirRevenda();
       }
     } finally {
@@ -1845,20 +1896,22 @@
   }
 
   // Um clique no cartão: um único pedido. tipo 'criar' (anunciar) ou 'editar' (mudar o preço).
-  async function acaoDeRevenda({ tipo, itemId, qtd, preco, anuncioId }) {
+  async function acaoDeRevenda({ tipo, itemId, qtd, preco, anuncioId, moeda }) {
     const item = s.catalogo.get(Number(itemId));
     if (!item || !Config.itemLiberado(s.config, item)) return;
     const atual = s.revenda.acoes.get(item.id);
     if (anuncioEmVoo() || (atual && atual.fase === 'enviando')) { marcarAcao(item.id, 'erro', 'Espere a resposta do anúncio anterior.'); return; }
     if (!s.socketAberto) { marcarAcao(item.id, 'erro', 'Sem conexão com o jogo.'); return; }
     const p = Math.floor(Number(preco));
-    if (!(p >= Rv.PRECO_MINIMO)) { marcarAcao(item.id, 'erro', `Preço mínimo: ${Rv.PRECO_MINIMO}.`); return; }
+    const moedaFinal = moeda || (Config.moedaDoItem ? Config.moedaDoItem(s.config, item) : 'gold');
+    const minP = moedaFinal === 'orb' ? 2 : Rv.PRECO_MINIMO;
+    if (!(p >= minP)) { marcarAcao(item.id, 'erro', `Preço mínimo: ${minP} ${moedaFinal === 'orb' ? 'Gemas' : 'ouro'}.`); return; }
     let pedido;
     if (tipo === 'criar') {
       const tem = Number((s.conta.itens || {})[item.id]) || 0;
       const q = Math.floor(Number(qtd));
       if (!(q >= 1 && q <= tem)) { marcarAcao(item.id, 'erro', `Você tem ${fmtN(tem)} unidades.`); return; }
-      pedido = { t: 'market.criar', tipo: 'item', itemId: item.id, qtd: q, preco: p, moeda: 'gold' };
+      pedido = { t: 'market.criar', tipo: 'item', itemId: item.id, qtd: q, preco: p, moeda: moedaFinal };
     } else if (tipo === 'editar') {
       if (!Number.isInteger(anuncioId)) return;
       // v1.305: item muda de preço no máximo a cada 30 min. Nem tenta antes da hora.
@@ -1868,7 +1921,7 @@
         marcarAcao(item.id, 'erro', `O jogo só deixa mudar o preço de item a cada 30 min: faltam ${Math.ceil((meu.editavelEm - agoraSv) / 60000)} min.`);
         return;
       }
-      pedido = { t: 'market.editar', id: anuncioId, preco: p, moeda: 'gold' };
+      pedido = { t: 'market.editar', id: anuncioId, preco: p, moeda: moedaFinal };
     } else return;
     marcarAcao(item.id, 'enviando', 'Enviando…');
     // Ação no mercado, como a compra: não sai com uma compra enviada nem marcada para logo.
@@ -2158,20 +2211,50 @@
       // limites sozinho" e desligava as compras a cada F5 — o que a pessoa ajustou se perdia)
       if (d.modo === 'manual' && d.recarga) return;
       const salvo = await st.get(Config.CHAVE);
-      const atual = Config.validar(salvo[Config.CHAVE]);
-      // 1.13: no Automático cada automação tem o seu interruptor. Ao recarregar a página, o perfil
-      // volta, mas o que você desligou no Automático continua desligado. Escolher o Automático de
-      // novo no botão religa tudo (e esquece as escolhas).
-      // 1.53.4: as abas Ajustes e Alvos também aparecem no Automático; o que você ajustar nelas
-      // (limites, vigia, avisos, alvos) fica salvo e o F5 não desfaz mais.
+      const bruto = salvo[Config.CHAVE];
+      const atual = Config.validar(bruto);
+      const salvoCfg = bruto && typeof bruto === 'object' ? bruto : {};
+      // 1.53.13: ao recarregar a página, o que está salvo na config manda. O perfil e o
+      // radar:auto-escolhas só preenchem o que NUNCA foi salvo. Antes, um valor antigo em
+      // radar:auto-escolhas (ou o perfil) passava por cima do clique e as vendas voltavam a Off.
+      const nuncaSalvo = (k) => !(k in salvoCfg);
       const escolhas = {};
       if (d.modo === 'automatico' && d.recarga) {
         const r = await st.get('radar:auto-escolhas');
+        const g = { ...((r && r['radar:auto-escolhas']) || {}) };
+        // 1.53.11 e anteriores gravavam a chave "undefined" (o data-cfg-3 era lido errado): some com ela.
+        if ('undefined' in g) { delete g.undefined; await st.set({ 'radar:auto-escolhas': g }); }
+        for (const k of ['compraAutomatica', 'compraAutomaticaPokemon', 'revendaAutomatica', 'vigiaContinua', 'ajusteAutomatico', 'pokemon', 'revendaSoDoRadar', 'notificacoes', 'som', 'abrirPainelNoAviso']) if (typeof g[k] === 'boolean' && nuncaSalvo(k)) escolhas[k] = g[k];
+        for (const grp of Config.GRUPOS_VENDA) {
+          if (typeof g[grp.chave] === 'string' && ['off', 'orb', 'gold'].includes(g[grp.chave]) && nuncaSalvo(grp.chave)) {
+            escolhas[grp.chave] = g[grp.chave];
+          }
+        }
+        for (const k of ['raridadeBicicleta', 'raridadeCasa']) {
+          if (typeof g[k] === 'string' && (Config.NIVEIS_RARIDADE || []).includes(g[k]) && nuncaSalvo(k)) {
+            escolhas[k] = g[k];
+          }
+        }
+      } else if (d.modo === 'automatico') {
+        const r = await st.get('radar:auto-escolhas');
         const g = (r && r['radar:auto-escolhas']) || {};
-        for (const k of ['compraAutomatica', 'compraAutomaticaPokemon', 'revendaAutomatica', 'vigiaContinua', 'ajusteAutomatico', 'pokemon', 'revendaSoDoRadar', 'notificacoes', 'som', 'abrirPainelNoAviso']) if (typeof g[k] === 'boolean') escolhas[k] = g[k];
-        escolhas.radarLigado = true;
-      } else if (d.modo === 'automatico') await st.set({ 'radar:auto-escolhas': {} });
-      await st.set({ [Config.CHAVE]: { ...atual, ...perfil, ...escolhas } });
+        const pres = {};
+        for (const grp of Config.GRUPOS_VENDA) {
+          if (typeof g[grp.chave] === 'string' && ['off', 'orb', 'gold'].includes(g[grp.chave])) pres[grp.chave] = g[grp.chave];
+        }
+        for (const k of ['raridadeBicicleta', 'raridadeCasa']) {
+          if (typeof g[k] === 'string' && (Config.NIVEIS_RARIDADE || []).includes(g[k])) pres[k] = g[k];
+        }
+        await st.set({ 'radar:auto-escolhas': pres });
+      }
+      const base = { ...atual };
+      if (d.recarga) {
+        for (const [k, v] of Object.entries(perfil)) if (nuncaSalvo(k)) base[k] = v;
+        for (const [k, v] of Object.entries(escolhas)) if (nuncaSalvo(k)) base[k] = v;
+      } else {
+        Object.assign(base, perfil, escolhas);
+      }
+      await st.set({ [Config.CHAVE]: base });
     })().catch(erro);
   });
 
@@ -2276,21 +2359,9 @@
     s.revenda.manuaisProntos = true;
     const ct = await st.get(CHAVE_ALVOS_CONTA);
     s.alvosConta = (ct && ct[CHAVE_ALVOS_CONTA]) || {};
-    if (s.modoPiloto === 'automatico') {
-      const cfgAtual = Config.validar(salvo[Config.CHAVE]);
-      if (!cfgAtual.radarLigado) {
-        const r = await st.get('radar:auto-escolhas');
-        const g = (r && r['radar:auto-escolhas']) || {};
-        const escolhas = {};
-        for (const k of ['compraAutomatica', 'compraAutomaticaPokemon', 'revendaAutomatica']) {
-          if (typeof g[k] === 'boolean') escolhas[k] = g[k];
-        }
-        escolhas.radarLigado = true;
-        const corrigida = { ...cfgAtual, ...Config.PERFIS.automatico, ...escolhas };
-        await st.set({ [Config.CHAVE]: corrigida });
-        salvo[Config.CHAVE] = corrigida;
-      }
-    }
+    // 1.53.5: o radar NÃO liga sozinho no F5. Antes, uma conta em Automático com radarLigado
+    // desligado era "consertada" à força a cada recarga; agora o estado salvo é respeitado e só
+    // quem liga é a pessoa (ou escolher o Automático de novo no botão de modo).
     aplicarConfig(salvo[Config.CHAVE]);
     // Depois de recarregar a aba, não repete aviso nem quase aviso das últimas 24 h.
     const recentes = (await sw({ tipo: 'alertas:recentes' })) || {};

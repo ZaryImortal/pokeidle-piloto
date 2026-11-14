@@ -1,5 +1,164 @@
 {
   "versoes": {
+    "1.53.13": {
+      "pt": [
+        "Correção principal: as escolhas [Off | Gemas | Ouro] das vendas agora ficam salvas de verdade. O atributo do botão era lido como vazio, então o clique só mudava a cor e a config gravava uma chave sem nome.",
+        "As raridades (Comum a Lendária) e as escolhas de venda não voltam mais para Off ao recarregar a página: o que está salvo na config manda, e valores antigos do modo Automático não passam mais por cima.",
+        "Stones escolhidas manualmente (Gemas ou Ouro) não são mais jogadas de volta para Off pela migração antiga.",
+        "Limpeza automática da chave sem nome que as versões anteriores deixavam no armazenamento."
+      ],
+      "en": [
+        "Main fix: the [Off | Gems | Gold] sale choices are now actually saved. The button attribute was read as empty, so a click only changed the color while the config stored a nameless key.",
+        "Rarities (Common to Legendary) and sale choices no longer reset to Off after a page reload: the saved config wins, and old Automatic-mode values no longer override it.",
+        "Stones manually set to Gems or Gold are no longer forced back to Off by the old migration.",
+        "Automatic cleanup of the nameless key left behind by earlier versions."
+      ],
+      "es": [
+        "Corrección principal: las elecciones [Off | Gemas | Oro] de ventas ahora se guardan de verdad. El atributo del botón se leía vacío, así que el clic solo cambiaba el color y la config guardaba una clave sin nombre.",
+        "Las rarezas (Común a Legendaria) y las elecciones de venta ya no vuelven a Off al recargar la página: manda lo que está guardado en la config, y los valores viejos del modo Automático ya no se imponen.",
+        "Las Stones elegidas manualmente (Gemas u Oro) ya no vuelven a Off por la migración antigua.",
+        "Limpieza automática de la clave sin nombre que dejaban las versiones anteriores."
+      ]
+    },
+    "1.53.12": {
+      "pt": [
+        "Seletores [Off | Gemas | Ouro] e de raridade agora são responsivos: as linhas quebram e se ajustam à largura do painel, sem estourar para fora da tela.",
+        "Nomes longos (como Vender Fragmentos de Mega Shiny) passam a quebrar linha em vez de sobrepor o item vizinho.",
+        "Em painéis estreitos a lista de venda passa a uma coluna; em painéis largos continua em duas."
+      ],
+      "en": [
+        "The [Off | Gems | Gold] and rarity selectors are now responsive: rows wrap and adapt to the panel width, no longer overflowing off-screen.",
+        "Long names (such as Sell Mega Shiny Fragments) now wrap instead of overlapping the neighboring item.",
+        "On narrow panels the sale list switches to a single column; on wide panels it stays in two."
+      ],
+      "es": [
+        "Los selectores [Off | Gemas | Oro] y de rareza ahora son responsivos: las filas se ajustan y envuelven al ancho del panel, sin salirse de la pantalla.",
+        "Los nombres largos (como Vender Fragmentos de Mega Shiny) ahora pasan de línea en vez de superponerse al ítem vecino.",
+        "En paneles estrechos la lista de venta pasa a una sola columna; en paneles anchos se mantiene en dos."
+      ]
+    },
+    "1.53.11": {
+      "pt": [
+        "Adicionado seletor [Off | Gemas | Ouro] para Vender Pokémons na seção Itens Completos.",
+        "Correção nos botões de 3 estados e de raridade: removida a trava indevida ao estar com o piloto desligado e adicionada atualização visual imediata ao clicar.",
+        "Correção no padrão inicial das Stones: agora iniciam rigorosamente em Off por padrão, assim como todo o resto."
+      ],
+      "en": [
+        "Added [Off | Gems | Gold] selector for Sell Pokémon under Complete Items.",
+        "Fix for 3-state and rarity buttons: removed improper lock when pilot is off and added immediate visual feedback on click.",
+        "Fix for Stones default: now strictly defaults to Off like all other items."
+      ],
+      "es": [
+        "Se agregó el selector [Off | Gemas | Oro] para Vender Pokémons en Ítems Completos.",
+        "Corrección en los botones de 3 estados y rareza: se quitó el bloqueo indebido al estar con el piloto apagado y se agregó actualización visual inmediata al hacer clic.",
+        "Corrección en el valor por defecto de Stones: ahora inician estrictamente en Off como el resto."
+      ]
+    },
+    "1.53.10": {
+      "pt": [
+        "Separação de Itens Completos e Fragmentos com seletor de 3 estados: nenhum item ou fragmento é revendido sozinho por padrão.",
+        "Bicicletas e Casas com limite de raridade: escolha 'Vender até' (Comum, Incomum, Rara, Mítica ou Lendária) para proteger raridades mais altas de serem vendidas.",
+        "Fragmentos 100% separados: fim do grupo 'Outros Frags'. Cada fragmento (AoE, Z-Move, Bike, Chave, Mega Stone, Mega Shiny, Shiny Stone e Ovo Shiny) possui seu próprio seletor [Off | Gemas | Ouro].",
+        "Fragmentos Z-Move posicionados diretamente abaixo dos Fragmentos AoE.",
+        "Mantém a reserva de 2 pedras de evolução por tipo ao vender Stones."
+      ],
+      "en": [
+        "Separation of Complete Items and Fragments with a 3-state selector: no items or fragments are resold on their own by default.",
+        "Bicycles and Houses with rarity limits: choose 'Sell up to' (Common, Uncommon, Rare, Mythic, or Legendary) to keep higher rarities safe.",
+        "Fragments 100% separated: removed 'Other Frags'. Every fragment (AoE, Z-Move, Bike, Key, Mega Stone, Mega Shiny, Shiny Stone, and Shiny Egg) has its own [Off | Gems | Gold] selector.",
+        "Z-Move Fragments positioned directly below AoE Fragments.",
+        "Maintains a reserve of 2 evolution stones per type when selling Stones."
+      ],
+      "es": [
+        "Separación de Ítems Completos y Fragmentos con selector de 3 estados: ningún ítem o fragmento se revende solo por defecto.",
+        "Bicicletas y Casas con límite de rareza: elige 'Vender hasta' (Común, Incomún, Rara, Mítica o Legendaria) para proteger las rarezas más altas de ser vendidas.",
+        "Fragmentos 100% separados: eliminamos 'Otros Frags'. Cada fragmento (AoE, Z-Move, Bike, Llave, Mega Stone, Mega Shiny, Shiny Stone y Huevo Shiny) tiene su propio selector [Off | Gemas | Oro].",
+        "Fragmentos Z-Move ubicados justo debajo de los Fragmentos AoE.",
+        "Mantiene 2 piedras de evolución guardadas por tipo al vender Stones."
+      ]
+    },
+    "1.53.9": {
+      "pt": [
+        "Escolha da moeda de revenda: agora é possível escolher individualmente para Boss Token, Mystic Ticket e Safari Ticket se a revenda será feita em Ouro ou em Gemas.",
+        "O radar continua comprando esses itens barato estritamente em ouro; se a venda for configurada em Gemas, eles serão anunciados por Gemas no mercado.",
+        "Cartões de revenda e ações manuais mostram a moeda correta e calculam a taxa plana de 15% das Gemas."
+      ],
+      "en": [
+        "Resale currency selection: you can now individually choose whether to resell Boss Token, Mystic Ticket, and Safari Ticket for Gold or for Gems.",
+        "The radar still buys these items cheaply strictly for gold; if resale is configured for Gems, they will be listed for Gems on the market.",
+        "Resale cards and manual actions display the correct currency and apply the 15% flat Gems market fee."
+      ],
+      "es": [
+        "Selección de moneda de reventa: ahora se puede elegir individualmente para Boss Token, Mystic Ticket y Safari Ticket si la reventa será en Oro o en Gemas.",
+        "El radar sigue comprando estos ítems baratos estrictamente en oro; si se configura la venta en Gemas, se anunciarán por Gemas en el mercado.",
+        "Las tarjetas de reventa y acciones manuales muestran la moneda correcta y aplican la tasa plana del 15% de Gemas."
+      ]
+    },
+    "1.53.8": {
+      "pt": [
+        "Ajustes não aparece mais duplicado no modo Automático: fica só a aba do menu, alinhada com Avisos, Ofertas e as outras.",
+        "Boss Token, Mystic Ticket e Safari Ticket nunca são revendidos sozinhos: o radar só os compra em ouro quando estão baratos. Em Ajustes > O que vigiar há um interruptor para cada um (\"Vender ... por ouro\"); sem ele ligado, o item não entra na revenda.",
+        "Anúncios desses itens que já estavam abertos não são mexidos."
+      ],
+      "en": [
+        "Settings no longer shows up twice in Automatic mode: only the menu tab remains, aligned with Alerts, Offers and the rest.",
+        "Boss Token, Mystic Ticket and Safari Ticket are never resold on their own: the radar only buys them for gold when they are cheap. In Settings > What to watch there is a switch for each one (\"Sell ... for gold\"); with it off, the item never goes to resale.",
+        "Listings of these items that were already open are left alone."
+      ],
+      "es": [
+        "Ajustes ya no aparece duplicado en el modo Automático: queda solo la pestaña del menú, alineada con Avisos, Ofertas y las demás.",
+        "Boss Token, Mystic Ticket y Safari Ticket nunca se revenden solos: el radar solo los compra en oro cuando están baratos. En Ajustes > Qué vigilar hay un interruptor para cada uno (\"Vender ... por oro\"); sin él encendido, el ítem no entra en la reventa.",
+        "Los anuncios de estos ítems que ya estaban abiertos no se tocan."
+      ]
+    },
+    "1.53.7": {
+      "pt": [
+        "Radar do Mercado: ligar ou desligar no interruptor dos Ajustes (ou na faixa do topo) agora fica salvo de verdade. Ao recarregar a página, o radar mantém o estado que você configurou, em vez de voltar desligado.",
+        "O F5 não liga nem desliga o radar sozinho: ele só segue o que está salvo."
+      ],
+      "en": [
+        "Market Radar: turning it on or off with the Settings switch (or the top strip) is now really saved. On page reload the radar keeps the state you configured instead of coming back off.",
+        "F5 neither turns the radar on nor off by itself: it just follows what is saved."
+      ],
+      "es": [
+        "Radar del Mercado: encenderlo o apagarlo con el interruptor de Ajustes (o la franja superior) ahora se guarda de verdad. Al recargar la página, el radar mantiene el estado que configuraste en vez de volver apagado.",
+        "F5 no enciende ni apaga el radar solo: sigue lo que está guardado."
+      ]
+    },
+    "1.53.6": {
+      "pt": [
+        "Revenda automática: com ela ligada, ficam guardadas 2 pedras de evolução de cada tipo no estoque. Se aparecer um pokémon que evolui com pedra, você já tem a pedra, sem precisar comprar.",
+        "A reserva vale para os próximos anúncios automáticos; anúncios de pedra que já estavam abertos não são mexidos. As compras à mão e as pedras reservadas para o time continuam protegidas."
+      ],
+      "en": [
+        "Automatic resale: while it is on, 2 evolution stones of each type stay in stock. If a Pokémon that evolves with a stone shows up, you already have it without having to buy one.",
+        "The reserve applies to the next automatic listings; stone listings that were already open are left alone. Hand-bought items and stones reserved for the team remain protected."
+      ],
+      "es": [
+        "Reventa automática: con ella encendida, quedan guardadas 2 piedras de evolución de cada tipo en el inventario. Si aparece un pokémon que evoluciona con piedra, ya la tienes sin tener que comprarla.",
+        "La reserva vale para los próximos anuncios automáticos; los anuncios de piedra que ya estaban abiertos no se tocan. Las compras a mano y las piedras reservadas para el equipo siguen protegidas."
+      ]
+    },
+    "1.53.5": {
+      "pt": [
+        "Corrigido o script de fundo no IdleDeck: faltavam duas APIs do Chrome (alarmes e armazenamento de sessão) e ele morria antes de responder ao radar. Era isso que deixava a Revenda em \"lendo o mercado…\" e as Ofertas em \"Esperando a primeira consulta do radar.\".",
+        "O radar não liga mais sozinho ao recarregar a página: desligar é uma escolha salva e o F5 não desfaz.",
+        "Se o script de fundo não responder, a tela segue depois de alguns segundos em vez de ficar presa para sempre.",
+        "As Ofertas agora avisam quando a consulta terminou e nenhum item vigiado tinha anúncio em ouro."
+      ],
+      "en": [
+        "Fixed the background script on IdleDeck: two Chrome APIs were missing (alarms and session storage) and it crashed before answering the radar. That is what left Resale stuck on \"reading the market…\" and Offers on \"Waiting for the radar's first check.\".",
+        "The radar no longer turns itself on when the page reloads: turning it off is a saved choice and F5 does not undo it.",
+        "If the background script does not answer, the screen moves on after a few seconds instead of hanging forever.",
+        "Offers now say when the check finished and no watched item had a gold listing."
+      ],
+      "es": [
+        "Corregido el script de fondo en IdleDeck: faltaban dos APIs de Chrome (alarmas y almacenamiento de sesión) y moría antes de responder al radar. Eso dejaba la Reventa en \"leyendo el mercado…\" y las Ofertas en \"Esperando la primera consulta del radar.\".",
+        "El radar ya no se enciende solo al recargar la página: apagarlo es una elección guardada y F5 no la deshace.",
+        "Si el script de fondo no responde, la pantalla continúa tras unos segundos en vez de quedarse trabada para siempre.",
+        "Las Ofertas ahora avisan cuando la consulta terminó y ningún ítem vigilado tenía anuncio en oro."
+      ]
+    },
     "1.53.4": {
       "pt": [
         "Mercado no Automático: as abas Ajustes e Alvos agora aparecem também no modo Automático, para ajustar limites, vigia, avisos e alvos sem trocar para o Manual.",

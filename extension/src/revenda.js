@@ -243,28 +243,36 @@
     const p = lerPreco(c);
     const q = lerQtd(c);
     conta.textContent = '';
-    if (!(p >= Rv.PRECO_MINIMO)) { conta.textContent = `Preço mínimo: ${Rv.PRECO_MINIMO}.`; botao.disabled = true; return; }
+    const orb = c.sug && c.sug.moeda === 'orb';
+    const minP = orb ? 2 : Rv.PRECO_MINIMO;
+    const unidade = orb ? 'Gemas' : 'ouro';
+    if (!(p >= minP)) { conta.textContent = `Preço mínimo: ${minP} ${unidade}.`; botao.disabled = true; return; }
     const liquido = Rv.liquidoDe(p, q);
-    const lucro = liquido - c.sug.custo.porUnidade * q;
-    conta.append(document.createTextNode(`Líquido ${fmtN(liquido)} (já sem os 15%) · lucro `));
-    conta.append(el('span', lucro < 0 ? 'ruim' : null, fmtN(lucro)));
+    const cu = c.sug.custo;
+    const lucro = orb ? (cu && cu.moeda === 'orb' ? liquido - cu.porUnidade * q : liquido) : liquido - cu.porUnidade * q;
+    conta.append(document.createTextNode(`Líquido ${fmtN(liquido)} ${orb ? 'Gemas' : ''} (já sem os 15%) · lucro `));
+    conta.append(el('span', lucro < 0 ? 'ruim' : null, `${fmtN(lucro)}${orb ? ' Gemas' : ''}`));
     const prejuizo = p < c.sug.piso;
     botao.classList.toggle('prejuizo', prejuizo);
     const ocupado = c.acao && c.acao.fase === 'enviando';
     botao.disabled = Boolean(ocupado);
-    if (c.sug.acao === 'mudar-preco') botao.textContent = prejuizo ? (c.confirmar ? 'Confirmar o preço com prejuízo' : `Mudar preço para ${fmtN(p)} (prejuízo)`) : `Mudar preço para ${fmtN(p)}`;
-    else botao.textContent = prejuizo ? (c.confirmar ? 'Confirmar: anunciar com prejuízo' : 'Anunciar com prejuízo') : 'Anunciar';
+    const sulfixo = `${fmtN(p)}${orb ? ' Gemas' : ''}`;
+    if (c.sug.acao === 'mudar-preco') botao.textContent = prejuizo ? (c.confirmar ? 'Confirmar o preço com prejuízo' : `Mudar preço para ${sulfixo} (prejuízo)`) : `Mudar preço para ${sulfixo}`;
+    else botao.textContent = prejuizo ? (c.confirmar ? 'Confirmar: anunciar com prejuízo' : 'Anunciar com prejuízo') : (orb ? 'Anunciar em Gemas' : 'Anunciar');
   }
 
   function clicar(c) {
     const p = lerPreco(c);
-    if (!(p >= Rv.PRECO_MINIMO)) return;
+    const orb = c.sug && c.sug.moeda === 'orb';
+    const minP = orb ? 2 : Rv.PRECO_MINIMO;
+    if (!(p >= minP)) return;
     // Abaixo do custo: o primeiro clique só pede confirmação.
     if (p < c.sug.piso && !c.confirmar) { c.confirmar = true; pintarConta(c); return; }
     c.confirmar = false;
     c.partes.botao.disabled = true;
-    if (c.sug.acao === 'mudar-preco') bus.emit('revenda:mudar-preco', { itemId: c.sug.itemId, anuncioId: c.sug.meuAnuncio.id, preco: p });
-    else bus.emit('revenda:anunciar', { itemId: c.sug.itemId, qtd: lerQtd(c), preco: p });
+    const moeda = (c.sug && c.sug.moeda) || 'gold';
+    if (c.sug.acao === 'mudar-preco') bus.emit('revenda:mudar-preco', { itemId: c.sug.itemId, anuncioId: c.sug.meuAnuncio.id, preco: p, moeda });
+    else bus.emit('revenda:anunciar', { itemId: c.sug.itemId, qtd: lerQtd(c), preco: p, moeda });
   }
 
   function pintarCartao(c, sug, acao) {
@@ -274,10 +282,15 @@
     const { selo, ddTem, ddCusto, ddFila, ddVolume, preco, qtd, rotQtd, nota, acoes, estado, campos } = c.partes;
     selo.hidden = !sug.custo.doRadar;
     const m = sug.meuAnuncio;
-    ddTem.textContent = `${fmtN(sug.qtd)}${m ? ` · à venda: ${fmtN(m.qtd)} × ${fmtN(m.preco)}` : ''}`;
+    const orb = sug.moeda === 'orb';
+    ddTem.textContent = `${fmtN(sug.qtd)}${m ? ` · à venda: ${fmtN(m.qtd)} × ${fmtN(m.preco)}${orb ? ' Gemas' : ''}` : ''}`;
     const cu = sug.custo;
-    ddCusto.textContent = cu.compradas === 0 ? 'drop (sem custo)' : `${fmtN(cu.porUnidade)} por unidade${cu.deDrop > 0 ? ` (${fmtN(cu.deDrop)} de drop)` : ''} · empata a ${fmtN(sug.piso)}`;
-    ddFila.textContent = sug.fila && sug.fila.length ? `${sug.fila.map(fmtN).join(' · ')}${sug.ignorados ? ` · ${sug.ignorados} muito abaixo (custo ou anúncio de sorteio), ignorado${sug.ignorados > 1 ? 's' : ''}` : ''}` : (sug.acao === 'sem-livro' ? 'lendo o mercado deste item…' : 'nenhum outro anúncio');
+    ddCusto.textContent = orb
+      ? (cu.compradas === 0 ? 'drop (sem custo)' : `${fmtN(cu.porUnidade)} ouro por unidade (custo em ouro)`)
+      : (cu.compradas === 0 ? 'drop (sem custo)' : `${fmtN(cu.porUnidade)} por unidade${cu.deDrop > 0 ? ` (${fmtN(cu.deDrop)} de drop)` : ''} · empata a ${fmtN(sug.piso)}`);
+    ddFila.textContent = sug.fila && sug.fila.length
+      ? `${sug.fila.map(fmtN).join(' · ')}${orb ? ' Gemas' : ''}${sug.ignorados ? ` · ${sug.ignorados} muito abaixo (custo ou anúncio de sorteio), ignorado${sug.ignorados > 1 ? 's' : ''}` : ''}`
+      : (sug.acao === 'sem-livro' ? `lendo o mercado deste item em ${orb ? 'Gemas' : 'ouro'}…` : 'nenhum outro anúncio');
     ddVolume.textContent = typeof sug.volume7d === 'number' ? fmtN(sug.volume7d) : '-';
     // O que ele digitou fica, a não ser que a sugestão tenha mudado.
     if (!c.sujo || precoAntes !== sug.preco) {

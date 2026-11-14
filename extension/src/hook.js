@@ -280,8 +280,8 @@
       case 'market.itens':
         return { pedido: { t: 'market.itens' } };
       case 'market.item':
-        if (!inteiro(p.itemId, 1, 1e9) || p.moeda !== 'gold') return { erro: 'market.item inválido' };
-        return { pedido: { t: 'market.item', itemId: p.itemId, moeda: 'gold' } };
+        if (!inteiro(p.itemId, 1, 1e9) || !['gold', 'orb'].includes(p.moeda)) return { erro: 'market.item inválido' };
+        return { pedido: { t: 'market.item', itemId: p.itemId, moeda: p.moeda } };
       case 'market.comprar':
         if (!inteiro(p.id, 1, Number.MAX_SAFE_INTEGER) || !inteiro(p.qtd, 1, 1e6) || !inteiro(p.preco, 1, 1e13) || p.moeda !== 'gold') {
           return { erro: 'market.comprar inválido' };
@@ -305,10 +305,10 @@
           }
           return { pedido: { t: 'market.criar', tipo: 'pokemon', pokemonId: p.pokemonId, caixaId: null, casaId: null, bicicletaId: null, qtd: 1, preco: p.preco, moeda: p.moeda, dias: p.dias } };
         }
-        if (p.tipo !== 'item' || !inteiro(p.itemId, 1, 1e9) || !inteiro(p.qtd, 1, 1e6) || !inteiro(p.preco, 2, 1e13) || p.moeda !== 'gold') {
+        if (p.tipo !== 'item' || !inteiro(p.itemId, 1, 1e9) || !inteiro(p.qtd, 1, 1e6) || !inteiro(p.preco, p.moeda === 'gold' ? 2 : 1, 1e13) || !['gold', 'orb'].includes(p.moeda)) {
           return { erro: 'market.criar inválido' };
         }
-        return { pedido: { t: 'market.criar', tipo: 'item', itemId: p.itemId, caixaId: null, casaId: null, bicicletaId: null, qtd: p.qtd, preco: p.preco, moeda: 'gold', dias: null } };
+        return { pedido: { t: 'market.criar', tipo: 'item', itemId: p.itemId, caixaId: null, casaId: null, bicicletaId: null, qtd: p.qtd, preco: p.preco, moeda: p.moeda, dias: null } };
       case 'market.editar':
         // Em Gemas, só o pokémon shiny (que só se anuncia em Gemas).
         if (!inteiro(p.id, 1, Number.MAX_SAFE_INTEGER) || !['gold', 'orb'].includes(p.moeda) || !inteiro(p.preco, p.moeda === 'gold' ? 2 : 1, 1e13)) return { erro: 'market.editar inválido' };

@@ -27,6 +27,52 @@
       { t: 'Ayuda siempre a mano', x: 'El ? de cada fila explica lo que hace. Debajo del menú están Reportar error, Buscar actualización y el idioma. Esta guía vuelve con el botón ? de arriba.' },
     ],
     novidades: {
+      '1.53.13': [
+        "Corrección principal: las elecciones [Off | Gemas | Oro] de ventas ahora se guardan de verdad (antes el clic solo cambiaba el color).",
+        "Las rarezas y las elecciones de venta ya no vuelven a Off al recargar la página.",
+        "Las Stones elegidas manualmente ya no vuelven a Off por la migración antigua."
+      ],
+      '1.53.12': [
+        "Los selectores [Off | Gemas | Oro] y de rareza ahora son responsivos: las filas se ajustan y envuelven al ancho del panel, sin salirse de la pantalla.",
+        "Los nombres largos (como Vender Fragmentos de Mega Shiny) ahora pasan de línea en vez de superponerse al ítem vecino.",
+        "En paneles estrechos la lista de venta pasa a una sola columna; en paneles anchos se mantiene en dos."
+      ],
+      '1.53.11': [
+        "Se agregó el selector [Off | Gemas | Oro] para Vender Pokémons en Ítems Completos.",
+        "Corrección en los botones de 3 estados y rareza: se quitó el bloqueo indebido al estar con el piloto apagado y se agregó actualización visual inmediata al hacer clic.",
+        "Corrección en el valor por defecto de Stones: ahora inician estrictamente en Off como el resto."
+      ],
+      '1.53.10': [
+        "Separación de Ítems Completos y Fragmentos con selector de 3 estados: ningún ítem o fragmento se revende solo por defecto.",
+        "Bicicletas y Casas con límite de rareza: elige 'Vender hasta' (Común, Incomún, Rara, Mítica o Legendaria) para proteger las rarezas más altas de ser vendidas.",
+        "Fragmentos 100% separados: eliminamos 'Otros Frags'. Cada fragmento (AoE, Z-Move, Bike, Llave, Mega Stone, Mega Shiny, Shiny Stone y Huevo Shiny) tiene su propio selector [Off | Gemas | Oro].",
+        "Fragmentos Z-Move ubicados justo debajo de los Fragmentos AoE.",
+        "Mantiene 2 piedras de evolución guardadas por tipo al vender Stones."
+      ],
+      '1.53.9': [
+        "Selección de moneda de reventa: ahora se puede elegir individualmente para Boss Token, Mystic Ticket y Safari Ticket si la reventa será en Oro o en Gemas.",
+        "El radar sigue comprando estos ítems baratos estrictamente en oro; si se configura la venta en Gemas, se anunciarán por Gemas en el mercado.",
+        "Las tarjetas de reventa y acciones manuales muestran la moneda correcta y aplican la tasa plana del 15% de Gemas.",
+      ],
+      '1.53.8': [
+        "Ajustes ya no aparece duplicado en el modo Automático: queda solo la pestaña del menú, alineada con Avisos, Ofertas y las demás.",
+        "Boss Token, Mystic Ticket y Safari Ticket nunca se revenden solos: el radar solo los compra en oro cuando están baratos. En Ajustes > Qué vigilar hay un interruptor para cada uno (\"Vender ... por oro\"); sin él encendido, el ítem no entra en la reventa.",
+        "Los anuncios de estos ítems que ya estaban abiertos no se tocan.",
+      ],
+      '1.53.7': [
+        "Radar del Mercado: encenderlo o apagarlo con el interruptor de Ajustes (o la franja superior) ahora se guarda de verdad. Al recargar la página, el radar mantiene el estado que configuraste en vez de volver apagado.",
+        "F5 no enciende ni apaga el radar solo: sigue lo que está guardado.",
+      ],
+      '1.53.6': [
+        "Reventa automática: con ella encendida, quedan guardadas 2 piedras de evolución de cada tipo en el inventario. Si aparece un pokémon que evoluciona con piedra, ya la tienes sin tener que comprarla.",
+        "La reserva vale para los próximos anuncios automáticos; los anuncios de piedra que ya estaban abiertos no se tocan. Las compras a mano y las piedras reservadas para el equipo siguen protegidas.",
+      ],
+      '1.53.5': [
+        "Corregido el script de fondo en IdleDeck: faltaban dos APIs de Chrome (alarmas y almacenamiento de sesión) y moría antes de responder al radar. Eso dejaba la Reventa en \"leyendo el mercado…\" y las Ofertas en \"Esperando la primera consulta del radar.\".",
+        "El radar ya no se enciende solo al recargar la página: apagarlo es una elección guardada y F5 no la deshace.",
+        "Si el script de fondo no responde, la pantalla continúa tras unos segundos en vez de quedarse trabada para siempre.",
+        "Las Ofertas ahora avisan cuando la consulta terminó y ningún ítem vigilado tenía anuncio en oro.",
+      ],
       '1.53.4': [
         "Mercado en Auto: las pestañas Ajustes y Objetivos ahora también aparecen en el modo Auto, para ajustar límites, vigilancia, avisos y objetivos sin cambiar a Manual.",
         "Los objetivos de compra también se aplican en Auto, y lo que ajustes en el Mercado queda guardado al recargar la página.",
